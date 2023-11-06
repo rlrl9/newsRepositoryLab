@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<th:block th:if="${list}">
+    <h1 onclick="location.href='/newsmain'">뉴스 게시판</h1><hr>
+    <div id="search">
+        <form method="get" action="/search">
+            <input type="search" name="keyword" placeholder="내용 검색">
+            <input type="submit" value="검색">
+        </form>
+    </div>
+    <table>
+        <tr th:each="vo:${list}">
+            <td th:class="${vo.id}">[[${vo.id}]]</td>
+            <td th:class="${vo.id}" id="button2" th:onclick="showDetails([[${vo.id}]],[[${vo.writer}]],[[${vo.title}]],[[${vo.content}]],[[${vo.cnt}]])">[[${vo.title}]]</td>
+            <td th:class="${vo.id}" id="button4" th:onclick="searchN([[${vo.writer}]])">[[${ vo.writer }]]</td>
+            <td th:class="${vo.id}">[[${ vo.writeDate }]]</td>
+            <td th:class="${vo.id}">[[${ vo.cnt }]]</td>
+        </tr>
+    </table>
+    <button id="button1">뉴스 작성</button>
+    <div id="write" style="display:none">
+        <form method="post" action="/insert">
+            <input type="hidden" name="id" value="0">
+            <input id="writer" type="text" name="writer" placeholder="작성자">
+            <input id="title" type="text" name="title" placeholder="제목">
+            <input id="content" type="text" name="content" placeholder="내용">
+            <input type = "submit" value = "등록">
+            <input type = "reset" value = "재작성">
+            <input type="button"  value="취소" onclick="document.getElementById('write').style.display='none';return false">
+        </form>
+    </div>
+    <div id="detail" style="display:none">
+        <form method="post" action="/update">
+            <input type="hidden" id="id_detail" name="id" th:value="1">
+            <input id="writer_detail" type="text" name="writer" placeholder="작성자" th:value="1">
+            <input id="title_detail" type="text" name="title" placeholder="제목" th:value="1">
+            <input id="content_detail" type="text" name="content" placeholder="내용" th:value="1">
+            <input type="hidden" id="date_detail" name="writeDate">
+            <input type="hidden" id="cnt_detail" name="cnt">
+            <input type="button"  id="button_one" value="확인" onclick="document.getElementById('detail').style.display='none';return false">
+            <input type = "submit" value = "수정">
+            <input type ="button" id="button3" value="삭제">
+        </form>
+    </div><br>
+    <button th:onclick="page(1)">1</button>
+    <button th:onclick="page(2)">2</button>
+    <button th:onclick="page(3)">3</button>
+    <button th:onclick="page(4)">4</button>
+    <button th:onclick="page(5)">5</button>
+</th:block>
+<th:block th:if="${ msg }" >
+    <script th:inline="javascript">
+        alert([[${ msg }]]);
+        window.location.href = '/newsmain';
+    </script>
+</th:block>
+<script th:inline="javascript">
+    document.getElementById('button1').addEventListener('click',function (){
+        document.getElementById("detail").style.display='none';
+        document.getElementById("write").style.display='block';
+    });
+    document.getElementById('button_one').addEventListener('click',function (){
+        var id = document.getElementById("id_detail").value;
+        document.getElementById('detail').style.display='none';
+        window.location.href = '/one?id=' + id;
+    });
+    function showDetails(id,writer,title,content,cnt){
+        document.getElementById("write").style.display='none';
+        document.getElementById("detail").style.display='block';
+        document.getElementById("id_detail").value=id;
+        document.getElementById("writer_detail").value=writer;
+        document.getElementById("title_detail").value=title;
+        document.getElementById("content_detail").value=content;
+        document.getElementById("cnt_detail").value=cnt;
+        // LocalDateTime 형식으로 변환합니다.
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = (now.getMonth() + 1).toString().padStart(2, '0');
+        var day = now.getDate().toString().padStart(2, '0');
+        var hour = now.getHours().toString().padStart(2, '0');
+        var minute = now.getMinutes().toString().padStart(2, '0');
+        var second = now.getSeconds().toString().padStart(2, '0');
+
+        // LocalDateTime 형식의 문자열로 조합합니다.
+        var formattedDate = year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second;
+
+        // id가 date_detail인 요소의 값을 설정합니다.
+        document.getElementById("date_detail").value = formattedDate;
+    }
+    function page(num){
+        window.location.href = '/part?page=' +(num-1)+'&size=2';
+    }
+    document.getElementById('button3').addEventListener('click', function () {
+        var idValue = document.getElementById("id_detail").value; // 적절한 id 값을 할당
+        window.location.href = '/delete?id=' + idValue;
+    });
+    function searchN(writer){
+        window.location.href = '/writer?name=' + writer;
+    }
+</script>
+</body>
+</html>
